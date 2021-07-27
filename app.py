@@ -7,9 +7,32 @@ from database import fake_users_db
 from schemas import Token, User
 from utils import authenticate_user, create_access_token, get_current_active_user
 from utils import ACCESS_TOKEN_EXPIRE_MINUTES, get_current_user
-'''
-heroku url : https://lit-spire-48980.herokuapp.com/
-'''
+
+#monitoring
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.exporter.jaeger.thrift import JaegerExporter
+from opentelemetry import trace
+from opentelemetry.sdk.resources import SERVICE_NAME, Resource
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+
+trace.set_tracer_provider(
+    TracerProvider(
+        resource=Resource.create({SERVICE_NAME: "api_test"})
+    )
+)
+
+jaeger_exporter = JaegerExporter(
+    agent_host_name="localhost",
+    agent_port=6831,
+)
+
+trace.get_tracer_provider().add_span_processor(
+    BatchSpanProcessor(jaeger_exporter)
+)
+
+tracer = trace.get_tracer(__name__)
+
 
 app = FastAPI()
 
@@ -54,3 +77,6 @@ async def read_own_items(
 @app.get("/status/")
 async def read_system_status(current_user: User = Depends(get_current_user)):
     return {"status": current_user.role}
+
+
+FastAPIInstrumentor.instrument_app(app)
