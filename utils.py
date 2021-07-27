@@ -13,7 +13,8 @@ from schemas import User, TokenData, UserInDB
 SECRET_KEY = "b107cd73a42df17cf68b8aae60b7a530c8fddc9ec16a86ae9854d76be25786f1"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
+# USER_SCOPES = {"me": "Read information about the current user."}
+# ADMIN_SCOPES = {"items": "Read items."}
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="token",
